@@ -8,4 +8,10 @@ import (
 func main() {
 	cpuTemp := raspigo.GetCpuTemperature()
 	fmt.Println("CPU temp:",cpuTemp)
+	
+	cpuVolt := raspigo.GetCpuVoltage()
+	fmt.Println("CPU voltage:",cpuVolt)
+	
+	cpuClockSpeec := raspigo.GetCpuClockSpeed()
+	fmt.Println("CPU clock speed:",cpuClockSpeec)
 }
