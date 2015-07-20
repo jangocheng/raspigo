@@ -5,7 +5,17 @@ import (
 	"strconv"
 	"log"
 	"os/exec"
+	"net/http"
+	"encoding/json"
+	"fmt"
 )
+
+type RaspiStat struct {
+	CpuTemp float64
+	CpuVolt float64
+	CpuClock int
+	FreeMemP int
+}
 
 func byteToFloat(byteIn []byte) float64 {
 	stringVal := strings.Replace(string(byteIn), "\n", "", -1)
@@ -55,4 +65,16 @@ func GetFreeMemory() int {
 		log.Fatal(err)
 	}
 	return byteToInt(outByte)
+}
+func raspiStats(w http.ResponseWriter, r *http.Request) {
+	stat := RaspiStat{CpuTemp: GetCpuTemperature(), CpuVolt: GetCpuVoltage(), 
+		CpuClock: GetCpuClockSpeed(), FreeMemP: GetFreeMemory()}
+	jsonData, err := json.Marshal(stat)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Fprintf(w, string(jsonData))
+}
+func GetRaspiStatHandler() http.Handler {
+	return http.HandlerFunc(raspiStats)
 }
