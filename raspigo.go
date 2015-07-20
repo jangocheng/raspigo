@@ -9,23 +9,32 @@ import (
 
 func byteToFloat(byteIn []byte) float64 {
 	stringVal := strings.Replace(string(byteIn), "\n", "", -1)
-	temp, err := strconv.ParseFloat(stringVal, 64)
+	floatVal, err := strconv.ParseFloat(stringVal, 64)
 	if err != nil {
 		log.Fatal(err)
 	}
-	return temp
+	return floatVal
+}
+func byteToInt(byteIn []byte) int {
+	stringVal := strings.Replace(string(byteIn), "\n", "", -1)
+	stringVal = strings.Replace(stringVal, " ", "", -1)
+	intVal, err := strconv.Atoi(stringVal)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return intVal
 }
 
 func GetCpuTemperature() float64 {
-	outByte, err := exec.Command("sh", "-c", "cat /sys/class/thermal/thermal_zone*/temp").Output()
+	outByte, err := exec.Command("sh", "-c", "vcgencmd measure_temp |egrep -o '[1-9]{1,3}\\.[1-9]'").Output()
 	if err != nil {
 		log.Fatal(err)
 	}
-	return byteToFloat(outByte) / 1000.0
+	return byteToFloat(outByte)
 }
 
 func GetCpuVoltage() float64 {
-	outByte, err := exec.Command("sh", "-c", "/opt/vc/bin/vcgencmd measure_volts | tr -d 'volt=' | tr -d 'V'").Output()
+	outByte, err := exec.Command("sh", "-c", "vcgencmd measure_volts | egrep -o '[0-9]\\.[0-9]{3}'").Output()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -33,11 +42,17 @@ func GetCpuVoltage() float64 {
 }
 
 func GetCpuClockSpeed() int {
-	outByte, err := exec.Command("sh", "-c", "/opt/vc/bin/vcgencmd measure_clock arm | tr -d 'frequency(45)='").Output()
+	outByte, err := exec.Command("sh", "-c", "vcgencmd measure_clock arm | tr -d 'frequency(45)='").Output()
 	if err != nil {
 		log.Fatal(err)
 	}
-	outString := strings.Replace(string(outByte), "\n", "", -1)
-	outInt, err := strconv.Atoi(outString)
-	return outInt
+	return byteToInt(outByte)
+}
+
+func GetFreeMemory() int {
+	outByte, err := exec.Command("sh", "-c", "df | awk '{i=0;if($1 == \"rootfs\"){i=1;}if(i==1){print substr($5, 1, 2);}}'").Output()
+	if err != nil {
+		log.Fatal(err)
+	}
+	return byteToInt(outByte)
 }

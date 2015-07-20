@@ -14,4 +14,7 @@ func main() {
 	
 	cpuClockSpeec := raspigo.GetCpuClockSpeed()
 	fmt.Println("CPU clock speed:",cpuClockSpeec)
+	
+	freeMemory := raspigo.GetFreeMemory()
+	fmt.Println("Free memory in %:", freeMemory)
 }
