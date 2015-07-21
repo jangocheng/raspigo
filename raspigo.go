@@ -67,6 +67,7 @@ func GetFreeMemory() int {
 	return byteToInt(outByte)
 }
 func raspiStats(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	stat := RaspiStat{CpuTemp: GetCpuTemperature(), CpuVolt: GetCpuVoltage(), 
 		CpuClock: GetCpuClockSpeed(), FreeMemP: GetFreeMemory()}
 	jsonData, err := json.Marshal(stat)
